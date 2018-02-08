@@ -12,7 +12,10 @@ module Resque
           :queue     => queue
         }
         data = Resque.encode(data)
-        Resque.redis.rpush("failed_#{queue}".to_sym, data)
+
+        if !will_retry?
+          Resque.redis.rpush("failed_#{queue}".to_sym, data)
+        end
       end
       
       def self.queues
@@ -56,6 +59,40 @@ module Resque
         item['retried_at'] = Time.now.strftime("%Y/%m/%d %H:%M:%S")
         Resque.redis.lset(queue.to_sym, index, Resque.encode(item))
         Job.create(item['queue'], item['payload']['class'], *item['payload']['args'])
+      end
+
+      private
+
+      def klass
+        Object.const_get(payload['class'])
+      end
+
+      def retry_limit
+        klass.retry_limit
+      end
+
+      def has_a_limit?
+        klass.respond_to?(:retry_limit)
+      end
+
+      def has_a_count?
+        klass.respond_to?(:retry_count)
+      end
+
+      def retriable?
+        has_a_limit? && has_a_count?
+      end
+
+      def not_reached_limit?
+        retry_count < retry_limit
+      end
+
+      def retry_count
+        klass.retry_count
+      end
+
+      def will_retry?
+        retriable? && not_reached_limit?
       end
     end
   end

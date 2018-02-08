@@ -24,11 +24,12 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "lib/resque/failure/multiple_failure.rb",
+     "lib/resque/failure/multiple_failure_helpers/retry.rb",
      "lib/resque/failure_server.rb",
      "lib/resque/server/views/failure_queue.erb",
      "lib/resque/server/views/failures.erb",
-     "test/helper.rb",
-     "test/test_resque-multiple-failure-backend.rb"
+     "spec/spec_helper.rb",
+     "spec/lib/failure/multiple_failure_spec.rb"
   ]
   s.homepage = %q{http://github.com/omgitsads/resque-multiple-failure-backend}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -55,5 +56,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
     s.add_dependency(%q<resque>, [">= 0"])
   end
+
+  s.add_development_dependency 'rspec', "~> 3.0"
+  s.add_development_dependency 'yajl-ruby'
 end
 
